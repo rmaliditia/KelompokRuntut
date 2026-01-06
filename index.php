@@ -1,3 +1,3 @@
 <?php 
-echo "Hello, World! This is the index.php file.";
+echo "Hello, World! This is the index.php file. ";
 ?>
