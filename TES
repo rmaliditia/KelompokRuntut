@@ -2,3 +2,25 @@ sudo apt update
 sudo apt install openssh-server -y
 sudo systemctl enable ssh
 sudo systemctl start ssh
+name: Auto Deploy PHP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /var/www/html
+          git fetch origin
+          git reset --hard origin/main
