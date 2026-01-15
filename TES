@@ -2,3 +2,29 @@ sudo apt update
 sudo apt install openssh-server -y
 sudo systemctl enable ssh
 sudo systemctl start ssh
+
+
+
+APP_NAME="Runtut Web"
+
+APP_ENV=production
+
+APP_DEBUG=false
+
+APP_URL=http://20.214.243.179
+
+
+
+# KONFIGURASI DATABASE (PENTING!)
+
+DB_CONNECTION=mysql
+
+DB_HOST=localhost
+
+DB_PORT=3306
+
+DB_DATABASE=runtut
+
+DB_USERNAME=moon
+
+DB_PASSWORD=123
