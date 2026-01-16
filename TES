@@ -28,3 +28,5 @@ DB_DATABASE=runtut
 DB_USERNAME=moon
 
 DB_PASSWORD=123
+
+sudo chown -R moonuser:moonuser /var/www/html/runtut-web
