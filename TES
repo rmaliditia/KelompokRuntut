@@ -30,3 +30,71 @@ DB_USERNAME=moon
 DB_PASSWORD=123
 
 sudo chown -R moonuser:moonuser /var/www/html/runtut-web
+
+
+DIAGRAM PIPELINE CODE:
+
+// Sequence Diagram: Runtut Web CI/CD Pipeline
+// Menggambarkan 2 Workflow (Check & Deploy) yang jalan bersamaan
+
+Title: CI/CD Pipeline Flow (Parallel Execution)
+
+// --- Aktor & Sistem ---
+Actor Developer [icon: user, label: "Developer (Laptop)"]
+Participant GitHub [icon: github, label: "GitHub Repo"]
+
+// Kita pisahkan Runner untuk CI dan CD biar jelas bedanya
+Participant CI_Runner [icon: shield-check, label: "Job: Code Quality\n(Ubuntu Latest)"]
+Participant CD_Runner [icon: rocket, label: "Job: Auto Deploy\n(Ubuntu Latest)"]
+
+Participant Server [icon: server, label: "Azure VM (Production)"]
+
+// --- STEP 1: TRIGGER ---
+Developer -> GitHub: git push origin main
+Note over GitHub: Event Detected:\nPush to 'main' branch
+
+// --- STEP 2: PARALLEL WORKFLOWS ---
+// GitHub Actions menjalankan kedua file .yml secara bersamaan
+par {
+  
+  // === JALUR 1: CI (Full Code Quality Check) ===
+  GitHub -> CI_Runner: Trigger 'code-quality' Job
+  
+  // A. Setup Environment
+  CI_Runner -> CI_Runner: Setup PHP 8.3
+  CI_Runner -> CI_Runner: Setup Node.js 16
+  
+  // B. Backend Check
+  CI_Runner -> CI_Runner: Run 'find . -name "*.php"'
+  Note right of CI_Runner: Check PHP Syntax\n(php -l)
+  
+  // C. Frontend Check
+  CI_Runner -> CI_Runner: npm install jshint csslint
+  CI_Runner -> CI_Runner: Run 'jshint' on .js files
+  
+  CI_Runner --> GitHub: Status: PASSED ✅
+  
+  
+  // === JALUR 2: CD (Auto Deploy to Server) ===
+  GitHub -> CD_Runner: Trigger 'deploy' Job
+  
+  // A. Koneksi SSH
+  CD_Runner -> Server: SSH Login (appleboy/ssh-action)
+  Note right of Server: Auth via Secrets\n(SERVER_IP, KEY)
+
+  // B. Eksekusi Script di Server
+  Group "Remote Server Execution" {
+    CD_Runner -> Server: cd /var/www/html/
+    CD_Runner -> Server: git config safe.directory ...
+    CD_Runner -> Server: cd runtut-web
+    
+    // Ini sesuai script YAML kamu
+    CD_Runner -> Server: git pull origin main
+    Server --> CD_Runner: Output: Fast-forward / Updates
+  }
+  
+  CD_Runner --> GitHub: Status: DEPLOYED 🚀
+}
+
+// --- STEP 3: FINISH ---
+GitHub --> Developer: Show 2 Green Checks (CI & CD)
